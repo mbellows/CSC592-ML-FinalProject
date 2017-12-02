@@ -3,7 +3,7 @@ import nltk
 import gensim
 
 # Load Google's pre-trained Word2Vec model.
-model = gensim.models.KeyedVectors.load_word2vec_format('/Users/Sammi/Downloads/GoogleNews-vectors-negative300.bin', binary=True)
+model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
 
 print ("Google News Word2Vec Model loaded successufully...")
 
