@@ -1,26 +1,90 @@
 import csv
 import nltk
 import gensim
+import re
+import numpy as np
 
-# Load Google's pre-trained Word2Vec model.
-model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
-
-print ("Google News Word2Vec Model loaded successufully...")
-
-embeddings = []
-
-with open('./data_sets/train.csv') as file:
-    reader = csv.DictReader(file, delimiter=',')
+"""
+CITE: clean_str(string) function courtesy of https://mxnet.incubator.apache.org/tutorials/nlp/cnn.html
+Tokenization/string cleaning for all datasets except for SST.
+Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
+"""
+def clean_str(string):
     
-    for row in reader:
-        try:
-            statements = nltk.word_tokenize(row['Statement'])
-            embeddings = model[statements]
-        except KeyError:
-            print (statements, " not in vocabulary...")
-            embeddings = "Unknown"
-        
-print ("Embedded statements from data set successufully...")
+    string = re.sub(r"[^A-Za-z0-9(),!?\'\`]", " ", string)
+    string = re.sub(r"\'s", " \'s", string)
+    string = re.sub(r"\'ve", " \'ve", string)
+    string = re.sub(r"n\'t", " n\'t", string)
+    string = re.sub(r"\'re", " \'re", string)
+    string = re.sub(r"\'d", " \'d", string)
+    string = re.sub(r"\'ll", " \'ll", string)
+    string = re.sub(r",", " , ", string)
+    string = re.sub(r"!", " ! ", string)
+    string = re.sub(r"\(", " \( ", string)
+    string = re.sub(r"\)", " \) ", string)
+    string = re.sub(r"\?", " \? ", string)
+    string = re.sub(r"\s{2,}", " ", string)
+    
+    return string.strip().lower()
 
-print (embeddings.shape)
-print (embeddings)
+
+"""
+CITE: pad_sentences(sentences, padding_word="") function courtesy of https://mxnet.incubator.apache.org/tutorials/nlp/cnn.html
+Pads all sentences to the same length. The length is defined by the longest sentence.
+Returns padded sentences.
+"""
+def pad_sentences(sentences, padding_word = ""):
+    sequence_length = max(len(x) for x in sentences)
+    padded_sentences = []
+    
+    for i in range(len(sentences)):
+        sentence = sentences[i]
+        num_padding = sequence_length - len(sentence)
+        new_sentence = sentence + [padding_word] * num_padding
+        padded_sentences.append(new_sentence)
+    
+    return padded_sentences
+
+'''
+Load the data and obtain labels and statements for fake news classifier
+'''
+def load_data(some_file):
+    
+    # Open the file and read all labels 
+    with open(some_file) as file:
+        labels = [row["Label"] for row in csv.DictReader(file)]
+    
+    # Open the file and read all statements 
+    with open(some_file) as file:
+        statements = [row["Statement"] for row in csv.DictReader(file)]
+    
+    # Strip the statements of whitespace characters in beginning and end
+    statements = [s.strip() for s in statements]
+    print('Strip done')
+    
+    # Clean the statements
+    statements = [clean_str(to_be_cleaned) for to_be_cleaned in statements]
+    print('Cleaning done')
+    
+    # Split statements by words
+    statements = [s.split(" ") for s in statements]
+    print('Split done')
+    
+    # Pad the statements to all be the same length
+    padded_statements = pad_sentences(statements)
+    print ('Padding done')
+    
+    return labels, padded_statements
+    
+
+def main():    
+    labels, padded_statements = load_data('./datasets/train.csv')
+    
+    # Load Google's pre-trained Word2Vec model.
+    model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+    
+    print ("Google News Word2Vec Model loaded successufully...")
+    
+    embeddings = model[padded_statements]
+    
+main()
