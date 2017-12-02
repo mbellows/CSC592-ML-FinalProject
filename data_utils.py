@@ -9,7 +9,7 @@ print ("Google News Word2Vec Model loaded successufully...")
 
 embeddings = []
 
-with open('./datasets/train.csv') as file:
+with open('./data_sets/train.csv') as file:
     reader = csv.DictReader(file, delimiter=',')
     
     for row in reader:
