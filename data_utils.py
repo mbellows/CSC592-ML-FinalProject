@@ -85,6 +85,7 @@ def main():
     
     print ("Google News Word2Vec Model loaded successufully...")
     
-    embeddings = model[padded_statements]
+    # Error on this line -> TypeError: 'KeyedVectors' object is not callable
+    embeddings = model(padded_statements)
     
 main()
