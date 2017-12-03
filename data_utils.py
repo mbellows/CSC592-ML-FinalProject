@@ -78,14 +78,21 @@ def load_data(some_file):
     
 
 def main():    
-    labels, padded_statements = load_data('./datasets/train.csv')
+    labels, padded_statements = load_data('./data_sets/sample.csv')
     
     # Load Google's pre-trained Word2Vec model.
     model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
     
     print ("Google News Word2Vec Model loaded successufully...")
     
-    # Error on this line -> TypeError: 'KeyedVectors' object is not callable
-    embeddings = model(padded_statements)
+    # Create embeddings 
+    embeddings = []
+
+    for i in range(len(padded_statements)):
+        temp_sentence = padded_statements[i]
+        embed_sentence = [model[w] for w in temp_sentence]
+        embeddings.append(embed_sentence)
     
+    print(embeddings)
+
 main()
