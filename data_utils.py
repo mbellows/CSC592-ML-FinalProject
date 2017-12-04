@@ -92,7 +92,7 @@ def one_hot_encoding(y_data):
 
 
 def main():    
-    labels, padded_statements = load_data('./datasets/sample.csv')
+    labels, padded_statements = load_data('./datasets/train.csv')
     
     y_labels = one_hot_encoding(labels)
     
