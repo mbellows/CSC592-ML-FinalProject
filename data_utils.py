@@ -3,6 +3,8 @@ import nltk
 import gensim
 import re
 import numpy as np
+from gensim.models.word2vec import Word2Vec
+from multiprocessing import cpu_count
 
 """
 CITE: clean_str(string) function courtesy of https://mxnet.incubator.apache.org/tutorials/nlp/cnn.html
@@ -44,7 +46,7 @@ def pad_sentences(sentences, padding_word = ""):
         padded_sentences.append(new_sentence)
     
     return padded_sentences
-
+            
 '''
 Load the data and obtain labels and statements for fake news classifier
 '''
@@ -75,15 +77,31 @@ def load_data(some_file):
     print ('Padding done')
     
     return labels, padded_statements
+
+
+def one_hot_encoding(y_data):
     
+    lookup, y = np.unique(y_data, return_inverse=True)
+    
+    K = len(lookup)
+    
+    targets = np.array(y).reshape(-1)
+    one_hot_targets = np.eye(K, dtype=int)[targets]
+    
+    return one_hot_targets
+
 
 def main():    
-    labels, padded_statements = load_data('./data_sets/sample.csv')
+    labels, padded_statements = load_data('./datasets/sample.csv')
+    
+    y_labels = one_hot_encoding(labels)
     
     # Load Google's pre-trained Word2Vec model.
-    model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+    model = gensim.models.KeyedVectors.load_word2vec_format('/Users/Sammi/Downloads/GoogleNews-vectors-negative300.bin', binary=True)
     
     print ("Google News Word2Vec Model loaded successufully...")
+    
+    
     
     # Create embeddings 
     embeddings = []
@@ -105,7 +123,16 @@ def main():
     
     embeddings = np.array(embeddings)
     
-    print(embeddings.shape)
-    print (embeddings)
+    np.save('embedding_output', embeddings)
+    
+    np.save('label_output', y_labels)
+    
+    
+    print ('Saved to output complete.')
+    
+    #print(embeddings.shape)
+    #print (embeddings)
+    
+    
 
 main()
