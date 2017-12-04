@@ -91,14 +91,21 @@ def main():
     for i in range(len(padded_statements)):
         temp_sentence = padded_statements[i]
         
-        try:
-            embed_sentence = [model[w] for w in temp_sentence]
+        embed_sentence = []
+        
+        for word in temp_sentence:
             
-        except KeyError:
-            embed_sentence = np.random.uniform(-0.25, 0.25, 300)
+            try:
+                embed_sentence.append(model[word])
+            
+            except KeyError:
+                embed_sentence.append(np.random.uniform(-0.25, 0.25, 300))
             
         embeddings.append(embed_sentence)
     
-    print(embeddings)
+    embeddings = np.array(embeddings)
+    
+    print(embeddings.shape)
+    print (embeddings)
 
 main()
