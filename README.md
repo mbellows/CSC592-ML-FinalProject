@@ -41,3 +41,12 @@ stuff they changed<br/>
 git add <file name><br/>
 
 // commit and push as per usual
+
+-----------
+
+// throw away your local changes (for example, so you can pull and take remote)
+
+git add --all<br/>
+git reset --hard<br/>
+
+then...git pull
