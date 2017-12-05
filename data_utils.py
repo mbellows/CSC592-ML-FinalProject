@@ -78,7 +78,7 @@ def load_data(some_file):
     
     return labels, padded_statements
 
-
+# Apply one hot encoding to the labels
 def one_hot_encoding(y_data):
     
     lookup, y = np.unique(y_data, return_inverse=True)
@@ -90,9 +90,9 @@ def one_hot_encoding(y_data):
     
     return one_hot_targets
 
-
-def main():    
-    labels, padded_statements = load_data('./datasets/train.csv')
+# Use word3vec to create embeddings for training, validation, and test files
+def word2vec(some_file):
+    labels, padded_statements = load_data(some_file)
     
     y_labels = one_hot_encoding(labels)
     
@@ -100,7 +100,6 @@ def main():
     model = gensim.models.KeyedVectors.load_word2vec_format('/Users/Sammi/Downloads/GoogleNews-vectors-negative300.bin', binary=True)
     
     print ("Google News Word2Vec Model loaded successufully...")
-    
     
     
     # Create embeddings 
@@ -123,16 +122,30 @@ def main():
     
     embeddings = np.array(embeddings)
     
-    np.save('embedding_output', embeddings)
+    return embeddings, y_labels
     
-    np.save('label_output', y_labels)
+
+# Save embeddings to an output file
+def save_data(embeddings, y_labels, embed_output_name, label_output_name):
     
+    np.save(embed_output_name, embeddings)
+    
+    np.save(label_output_name, y_labels)
     
     print ('Saved to output complete.')
     
-    #print(embeddings.shape)
-    #print (embeddings)
-    
-    
 
+def main():
+    
+    train_embeddings, train_labels = word2vec('./datasets/train.csv')
+    save_data(train_embeddings, train_labels, 'train_embeddings', 'train_labels')
+    
+    valid_embeddings, valid_labels = word2vec('./datasets/valid.csv')
+    save_data(valid_embeddings, valid_labels, 'valid_embeddings', 'valid_labels')
+    
+    test_embeddings, test_labels = word2vec('./datasets/test.csv')
+    save_data(test_embeddings, test_labels, 'test_embeddings', 'test_labels')
+    
+    
+    
 main()
