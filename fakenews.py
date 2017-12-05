@@ -18,18 +18,32 @@ def get_embeddings():
     we used for the SVM, but condensed to a single function.  
     """
     # Load the raw embedding data
-    X_train = np.load('embedding_output.npy')
+    X_train = np.load('train_embeddings.npy')
     
-    y_train = np.load('label_output.npy') 
+    y_train = np.load('train_labels.npy')
+    
+    X_valid = np.load('valid_embeddings.npy')
+    
+    y_valid = np.load('valid_labels.npy')
+    
+    X_test = np.load('test_embeddings.npy')
+    
+    y_test = np.load('test_labels.npy')
 
     #return X_train, y_train
-    return X_train, y_train
+    return X_train, y_train, X_valid, y_valid, X_test, y_test
 
 
 # Invoke the above function to get our data.
-X_train, y_train = get_embeddings()
+X_train, y_train, X_valid, y_valid, X_test, y_test = get_embeddings()
 print('Train data shape: ', X_train.shape)
 print('Train labels shape: ', y_train.shape)
+
+print('Validation data shape: ', X_valid.shape)
+print('Validation labels shape: ', y_valid.shape)
+
+print('Test data shape: ', X_test.shape)
+print('Test labels shape: ', y_test.shape)
 
 np.random.seed(123)
 
