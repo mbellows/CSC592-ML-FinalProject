@@ -6,6 +6,7 @@ import numpy as np
 from gensim.models.word2vec import Word2Vec
 from multiprocessing import cpu_count
 
+
 """
 CITE: clean_str(string) function courtesy of https://mxnet.incubator.apache.org/tutorials/nlp/cnn.html
 Tokenization/string cleaning for all datasets except for SST.
@@ -35,8 +36,18 @@ CITE: pad_sentences(sentences, padding_word="") function courtesy of https://mxn
 Pads all sentences to the same length. The length is defined by the longest sentence.
 Returns padded sentences.
 """
-def pad_sentences(sentences, padding_word = ""):
+padding = []
+
+def pad_sentences(training, sentences, padding_word = ""):
+    
     sequence_length = max(len(x) for x in sentences)
+    padding.append(sequence_length)
+    
+    
+    if training == False:
+        sequence_length = padding[0]
+    
+    
     padded_sentences = []
     
     for i in range(len(sentences)):
@@ -46,15 +57,20 @@ def pad_sentences(sentences, padding_word = ""):
         padded_sentences.append(new_sentence)
     
     return padded_sentences
-            
-'''
-Load the data and obtain labels and statements for fake news classifier
-'''
-def load_data(some_file):
-    
+
+
+def load_labels(some_file):
     # Open the file and read all labels 
     with open(some_file) as file:
         labels = [row["Label"] for row in csv.DictReader(file)]
+        
+    return labels
+    
+
+'''
+Load the data and obtain labels and statements for fake news classifier
+'''
+def load_data(some_file, training):
     
     # Open the file and read all statements 
     with open(some_file) as file:
@@ -73,10 +89,11 @@ def load_data(some_file):
     print('Split done')
     
     # Pad the statements to all be the same length
-    padded_statements = pad_sentences(statements)
+    padded_statements = pad_sentences(training, statements)
     print ('Padding done')
     
-    return labels, padded_statements
+    return padded_statements
+
 
 # Apply one hot encoding to the labels
 def one_hot_encoding(y_data):
@@ -90,14 +107,12 @@ def one_hot_encoding(y_data):
     
     return one_hot_targets
 
+
 # Use word3vec to create embeddings for training, validation, and test files
-def word2vec(some_file):
-    labels, padded_statements = load_data(some_file)
-    
-    y_labels = one_hot_encoding(labels)
+def word2vec(padded_statements):
     
     # Load Google's pre-trained Word2Vec model.
-    model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+    model = gensim.models.KeyedVectors.load_word2vec_format('/Users/Sammi/Downloads/GoogleNews-vectors-negative300.bin', binary=True)
     
     print ("Google News Word2Vec Model loaded successufully...")
     
@@ -122,7 +137,7 @@ def word2vec(some_file):
     
     embeddings = np.array(embeddings)
     
-    return embeddings, y_labels
+    return embeddings
     
 
 # Save embeddings to an output file
@@ -137,14 +152,24 @@ def save_data(embeddings, y_labels, embed_output_name, label_output_name):
 
 def main():
     
-    train_embeddings, train_labels = word2vec('./datasets/train.csv')
+    padded_train_statements = load_data('./datasets/train.csv', True)
+    tr_labels = load_labels('./datasets/train.csv')
+    train_labels = one_hot_encoding(tr_labels)
+    train_embeddings = word2vec(padded_train_statements)
     save_data(train_embeddings, train_labels, 'train_embeddings', 'train_labels')
     
-    valid_embeddings, valid_labels = word2vec('./datasets/valid.csv')
+    padded_valid_statements = load_data('./datasets/valid.csv', False)
+    val_labels = load_labels('./datasets/valid.csv')
+    valid_labels = one_hot_encoding(val_labels)
+    valid_embeddings = word2vec(padded_valid_statements)
     save_data(valid_embeddings, valid_labels, 'valid_embeddings', 'valid_labels')
     
-    test_embeddings, test_labels = word2vec('./datasets/test.csv')
+    padded_test_statements = load_data('./datasets/test.csv', False)
+    ts_labels = load_labels('./datasets/test.csv')
+    test_labels = one_hot_encoding(ts_labels)
+    test_embeddings = word2vec(padded_test_statements)
     save_data(test_embeddings, test_labels, 'test_embeddings', 'test_labels')
+    
     
     
     
