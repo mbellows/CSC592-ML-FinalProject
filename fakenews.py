@@ -17,22 +17,22 @@ def get_embeddings():
     it for the two-layer neural net classifier. These are the same steps as
     we used for the SVM, but condensed to a single function.  
     """
+    folder = '/mnt/data/playground/temp-project-michael/'
     # Load the raw embedding data
-    X_train = np.load('train_embeddings.npy')
+    X_train = np.load(folder+'train_embeddings.npy')
     
-    y_train = np.load('train_labels.npy')
+    y_train = np.load(folder+'train_labels.npy')
     
-    X_valid = np.load('valid_embeddings.npy')
+    X_valid = np.load(folder+'valid_embeddings.npy')
     
-    y_valid = np.load('valid_labels.npy')
+    y_valid = np.load(folder+'valid_labels.npy')
     
-    X_test = np.load('test_embeddings.npy')
+    X_test = np.load(folder+'test_embeddings.npy')
     
-    y_test = np.load('test_labels.npy')
+    y_test = np.load(folder+'test_labels.npy')
 
     #return X_train, y_train
     return X_train, y_train, X_valid, y_valid, X_test, y_test
-
 
 # Invoke the above function to get our data.
 X_train, y_train, X_valid, y_valid, X_test, y_test = get_embeddings()
@@ -52,6 +52,7 @@ sentence_size = X_train.shape[1]
 embed_size = X_train.shape[2]
 
 X_train = X_train.reshape((batch,1,sentence_size,embed_size))
+X_valid = X_valid.reshape((X_valid.shape[0],1,sentence_size,embed_size))
 print (X_train.shape)
 
 
@@ -82,4 +83,4 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 model.fit(X_train, y_train, 
-          batch_size=64, nb_epoch=10, verbose=1, validation_data=(X_valid,y_valid))
+          batch_size=64, nb_epoch=10, verbose=1,validation_data=(X_valid,y_valid))
