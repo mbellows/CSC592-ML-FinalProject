@@ -11,6 +11,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM, Bidirectional
 from keras.datasets import imdb
 
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import imshow
+%matplotlib inline
+
 def get_embeddings():
     """
     Load the CIFAR-10 dataset from disk and perform preprocessing to prepare
