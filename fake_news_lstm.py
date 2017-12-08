@@ -95,6 +95,8 @@ plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
 
+print(model.evaluate(X_test, y_test, batch_size=64, verbose=0))
+
 test_output = model.predict(X_test, batch_size=64, verbose=0)
 
 def output_to_onehot (output):
